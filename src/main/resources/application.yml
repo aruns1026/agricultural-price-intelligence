@@ -1,0 +1,90 @@
+spring:
+  application:
+    name: agricultural-price-intelligence
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/agricultural_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+    show-sql: false
+
+  elasticsearch:
+    rest:
+      uris: http://localhost:9200
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: agricultural-price-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+      auto-offset-reset: earliest
+    topics:
+      price-events: price-events
+      import-data-events: import-data-events
+      alert-events: alert-events
+
+jwt:
+  secret: ${JWT_SECRET:your-super-secret-jwt-key-change-in-production-environment-please}
+  expiration: 86400000
+  refresh-expiration: 604800000
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+logging:
+  level:
+    root: INFO
+    com.myproject.api: DEBUG
+    org.springframework.security: DEBUG
+    org.elasticsearch: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Agricultural Domain Configuration
+agriculture:
+  crops:
+    - wheat
+    - rice
+    - corn
+    - cotton
+    - sugarcane
+  regions:
+    - maharashtra
+    - punjab
+    - haryana
+    - karnataka
+    - madhya-pradesh
+  price-prediction:
+    enabled: true
+    retraining-days: 7
+    min-historical-records: 30
+  llm:
+    type: ollama  # options: ollama, openai
+    ollama:
+      base-url: http://localhost:11434
+      model-name: mistral
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      model-name: gpt-3.5-turbo
+
