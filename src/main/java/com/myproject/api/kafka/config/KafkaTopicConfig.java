@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.KafkaAdmin;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Configuration
 @EnableKafka
 public class KafkaTopicConfig {
@@ -17,8 +20,11 @@ public class KafkaTopicConfig {
 
     @Bean
     public KafkaAdmin kafkaAdmin() {
-        return new KafkaAdmin(KafkaAdmin.AdminClientProperty.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        return new KafkaAdmin(configs);
     }
+
 
     @Bean
     public NewTopic priceEventsTopic() {
